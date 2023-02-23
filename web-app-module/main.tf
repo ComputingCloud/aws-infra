@@ -25,7 +25,7 @@ resource "aws_route_table" "public_rt" {
     gateway_id = aws_internet_gateway.webapp_igw.id
   }
   tags = {
-    "Name" = "public_route_table-${aws_vpc.webapp_vpc.id}"
+    Name = "public_route_table-${aws_vpc.webapp_vpc.id}"
   }
 }
 
@@ -36,21 +36,14 @@ resource "aws_route_table" "private_rt" {
   }
 }
 
-
-# resource "aws_route" "public_rt_internet_gateway" {
-#   route_table_id = aws_route_table.public_rt.id
-#   cidr_block = "0.0.0.0/0"
-#   gateway_id = aws_internet_gateway.webapp_igw.id
-# }
-
-
 resource "aws_subnet" "public_subnet" {
   count             = local.no_of_subnets
   cidr_block        = cidrsubnet(aws_vpc.webapp_vpc.cidr_block, 8, count.index)
   vpc_id            = aws_vpc.webapp_vpc.id
   availability_zone = data.aws_availability_zones.available.names[count.index]
+  map_public_ip_on_launch = true	
   tags = {
-    Name = "public_subnet-${count.index + 1}"
+    Name = "public_subnet-${aws_vpc.webapp_vpc.id}-${count.index + 1}"
   }
 }
 
@@ -60,7 +53,7 @@ resource "aws_subnet" "private_subnet" {
   vpc_id            = aws_vpc.webapp_vpc.id
   availability_zone = data.aws_availability_zones.available.names[count.index]
   tags = {
-    Name = "private_subnet-${count.index + 1}"
+    Name = "private_subnet-${aws_vpc.webapp_vpc.id}-${count.index + 1}"
   }
 }
 
@@ -68,6 +61,7 @@ locals {
   public_subnet_ids = aws_subnet.public_subnet.*.id
   private_subnet_ids = aws_subnet.private_subnet.*.id
   no_of_subnets = min(var.aws_subnet_count, length(data.aws_availability_zones.available.names))
+  timestamp          = formatdate("YYYY-MM-DDTHH-MM-SS", timestamp())
 
 
 }

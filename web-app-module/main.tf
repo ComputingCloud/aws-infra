@@ -305,7 +305,7 @@ resource "aws_iam_policy" "policy" {
     "Version" : "2012-10-17"
     "Statement" : [
       {
-        "Action" : ["s3:DeleteObject", "s3:PutObject", "s3:GetObject", "s3:ListAllMyBuckets"]
+        "Action" : ["s3:DeleteObject", "s3:PutObject", "s3:GetObject", "s3:ListAllMyBuckets", "s3:ListBucket"]
         "Effect" : "Allow"
         "Resource" : ["arn:aws:s3:::${aws_s3_bucket.s3b.bucket}",
         "arn:aws:s3:::${aws_s3_bucket.s3b.bucket}/*"]

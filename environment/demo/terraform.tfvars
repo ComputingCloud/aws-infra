@@ -14,3 +14,5 @@ db_username       = "csye6225"
 db_password       = "csye*6225"
 db_public_access  = false
 db_multiaz        = false
+domain_name       = "demo.jatincp.me"
+sub_domain_name   = "webapp"

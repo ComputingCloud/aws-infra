@@ -154,7 +154,7 @@ resource "aws_instance" "webapp_instance" {
   }
   depends_on           = [aws_db_instance.rds_instance]
   iam_instance_profile = aws_iam_instance_profile.iam_profile.name
-  user_data            = <<EOF
+user_data            = <<EOF
 #!/bin/bash
 cd /home/ec2-user || return
 touch application.properties
@@ -169,11 +169,21 @@ echo "spring.datasource.username=${aws_db_instance.rds_instance.username}" >> ap
 echo "spring.datasource.password=${aws_db_instance.rds_instance.password}" >> application.properties
 echo "#spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect" >> application.properties
 echo "spring.jpa.hibernate.ddl-auto=update" >> application.properties
+echo "logging.file.path=/home/ec2-user" >> application.properties
+echo "logging.file.name=/home/ec2-user/csye6225.log" >> application.properties
+echo "publish.metrics=true" >> application.properties
+echo "metrics.server.hostname=localhost" >> application.properties
+echo "metrics.server.port=8125" >> application.properties
 sudo chmod 770 /home/ec2-user/webapp-0.0.1-SNAPSHOT.jar
 sudo cp /tmp/webservice.service /etc/systemd/system
+sudo cp /tmp/cloudwatch-config.json /opt/cloudwatch-config.json
+sudo chmod 770 /opt/cloudwatch-config.json
 sudo chmod 770 /etc/systemd/system/webservice.service
-sudo systemctl start webservice.service
-sudo systemctl enable webservice.service
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+    -a fetch-config \
+    -m ec2 \
+    -c file:/opt/cloudwatch-config.json \
+    -s
 sudo systemctl daemon-reload
 sudo systemctl start webservice.service
 sudo systemctl enable webservice.service
@@ -332,4 +342,11 @@ resource "aws_route53_record" "hosted_zone_record" {
   type    = "A"
   ttl     = "60"
   records = [aws_instance.webapp_instance.public_ip]
+}
+
+#CloudWatch Policy
+resource "aws_iam_policy_attachment" "web-app-atach-cloudwatch" {
+  name       = "attach-cloudwatch-server-policy-ec2"
+  roles      = [aws_iam_role.ec2-role.name]
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }

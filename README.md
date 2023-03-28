@@ -61,3 +61,5 @@ Run the command terraform apply to apply your Terraform code and create your inf
 Review the output to make sure there are no errors.
 Step 6: Destroy the infrastructure
 To destroy the infrastructure you created, run the command terraform destroy. This will remove all resources created by your Terraform code.
+
+Testing Yaml.

@@ -16,3 +16,4 @@ db_public_access  = false
 db_multiaz        = false
 domain_name       = "dev.jatincp.me"
 sub_domain_name   = "webapp"
+aws_account_id    = "380308861857"
